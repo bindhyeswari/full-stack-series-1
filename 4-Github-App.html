@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>$http</title>
+    <link rel="stylesheet" href="base.css"/>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="commons.js"></script>
+    <script>
+        angular.module('myApp', ['commons']).controller('MyController', function ($http, $scope, githubAPIUrl) { // implicit di
+
+            $scope.query = '';
+            $scope.search = function (ev) {
+                if (ev.keyCode === 13) {
+                    console.log($scope.query);
+
+                    // should not be in the controller
+                    $http.get(githubAPIUrl, {
+                        params: {
+                            q: 'nodejs'
+                        }
+                    }).success(function (data) {
+                        console.log(data);
+                        $scope.repositories = data.items;
+                    });
+                }
+            };
+
+        });
+    </script>
+</head>
+<body>
+<div ng-controller="MyController">
+    {{message}}
+    <input type="text" ng-model="query" ng-keydown="search($event)"/>
+    <hr/>
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Size</th>
+            <th>Language</th>
+            <th>Last Pushed Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="repo in repositories | orderBy: predicate">
+            <td>{{repo.name}}</td>
+            <td>{{repo.size}}</td>
+            <td>{{repo.language}}</td>
+            <td>{{repo.pushed_at | date}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

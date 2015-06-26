@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Two way binding</title>
+    <link rel="stylesheet" href="../base.css"/>
+    <script>
+
+        var $scope = {
+            user: {
+                name: 'Henry Cavendish'
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // two way binding for ng-model
+            (function () {
+                var watched_elements = document.querySelectorAll('[ng-model]');
+                watched_elements = Array.prototype.slice.call(watched_elements);
+
+                watched_elements.forEach(function (element) {
+
+                    var attr_val = element.getAttribute('ng-model');
+                    var properties = element.getAttribute('ng-model').split('.');
+                    var prop = properties.pop();
+                    var object = properties.reduce(function (obj, prop) {
+                        return obj[prop];
+                    }, $scope);
+
+                    console.log(object, prop);
+
+
+                    Object.observe(object, function (changes){
+                        var name = changes[0].name;
+                        console.log('prooerty ', name, 'of object changed ... ');
+                        if (prop === name) {
+                            if (element.value !== object[prop]) {
+                                element.value = object[prop];
+                            }
+                        }
+                    });
+
+                    element.addEventListener('keyup', function (event) {
+                        object[prop] = this.value;
+                        console.log($scope);
+                    });
+                });
+            }());
+
+            // one-way binding for ng-bind
+            (function () {
+                var watched_elements = document.querySelectorAll('[ng-bind]');
+                watched_elements = Array.prototype.slice.call(watched_elements);
+
+                watched_elements.forEach(function (element) {
+
+                    var attr_val = element.getAttribute('ng-bind');
+                    var properties = element.getAttribute('ng-bind').split('.');
+                    var prop = properties.pop();
+                    var object = properties.reduce(function (obj, prop) {
+                        return obj[prop];
+                    }, $scope);
+
+                    console.log(object, prop);
+
+
+                    Object.observe(object, function (changes){
+                        var name = changes[0].name;
+                        console.log('prooerty ', name, 'of object changed ... ');
+                        if (prop === name) {
+                            element.innerHTML = object[prop];
+                        }
+                    });
+                });
+            }());
+
+        });
+
+        var watchers = {};
+
+
+
+
+
+
+
+
+    </script>
+</head>
+<body>
+    <input type="text" ng-model="user.name"/>
+    <input type="text" ng-model="user.name"/>
+    <input type="text" ng-model="user.name"/>
+    <div ng-bind="user.name">
+
+    </div>
+</body>
+</html>

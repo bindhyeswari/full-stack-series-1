@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Implementing Two Way Binding ... </title>
+    <link rel="stylesheet" href="../base.css"/>
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            var $scope = {
+                user: {
+                    name: 'Henry Cavendish'
+                }
+            };
+
+            // listen in to events from the input elements
+            // change the appropriate model
+
+            Array.prototype.slice.call(document.querySelectorAll('[ng-model]')).forEach(function (element) {
+
+                // get the object and property object.property
+                var property_names = element.getAttribute('ng-model').split('.');
+                var property = property_names.pop();
+                var object = property_names.reduce(function (obj, prop) {
+                    return obj[prop];
+                }, $scope);
+
+                element.value = object[property];
+
+                Object.observe(object, function (changes) {
+                    if (changes[0].name === property) {
+                        if (element.value !== object[property]) {
+                            element.value = object[property]
+                        }
+                    }
+                });
+
+                element.addEventListener('keyup', function (ev) {
+                    object[property] = this.value;
+                    console.log(object);
+                });
+
+
+            });
+
+            // listen for changes on the model
+            // update the view as necessary
+
+            Array.prototype.slice.call(document.querySelectorAll('[ng-bind]')).forEach(function (element) {
+
+                // get the object and property object.property
+                var property_names = element.getAttribute('ng-bind').split('.');
+                var property = property_names.pop();
+                var object = property_names.reduce(function (obj, prop) {
+                    return obj[prop];
+                }, $scope);
+
+                element.innerHTML = object[property];
+
+                Object.observe(object, function (changes) {
+                    if (changes[0].name === property) {
+                        element.innerHTML = object[property];
+                    }
+                });
+
+            });
+
+
+
+        });
+
+    </script>
+</head>
+<body>
+<input type="text" ng-model="user.name"/>
+<input type="text" ng-model="user.name"/>
+<input type="text" ng-model="user.name"/>
+<div ng-bind="user.name"></div>
+</body>
+</html>
